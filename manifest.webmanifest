@@ -1,0 +1,17 @@
+{
+  "name": "周期任务台账与每日提醒",
+  "short_name": "工作台账",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#f4f6f8",
+  "theme_color": "#173d39",
+  "description": "个人常规工作台账、周期任务提醒和工作留档记录。",
+  "icons": [
+    {
+      "src": "./icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

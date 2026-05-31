@@ -1,0 +1,270 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#173d39">
+  <title>周期任务台账与每日提醒</title>
+  <link rel="manifest" href="./manifest.webmanifest">
+  <link rel="stylesheet" href="./styles.css">
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="side-nav" aria-label="主导航">
+      <div class="brand">
+        <div class="brand-mark">账</div>
+        <div>
+          <h1>工作台账</h1>
+          <p>周期任务与每日提醒</p>
+        </div>
+      </div>
+      <nav>
+        <button class="nav-item active" data-view="dashboard" type="button">工作台</button>
+        <button class="nav-item" data-view="templates" type="button">周期任务台账</button>
+        <button class="nav-item" data-view="archive" type="button">工作留档记录</button>
+      </nav>
+      <div class="side-panel">
+        <span class="muted-label">今日</span>
+        <strong id="todayText">--</strong>
+        <span id="periodText">--</span>
+      </div>
+    </aside>
+
+    <main class="main-content">
+      <section class="view active" id="dashboard">
+        <header class="page-header">
+          <div>
+            <p class="eyebrow">个人常规工作台账</p>
+            <h2>今天应该先处理什么</h2>
+          </div>
+          <div class="header-actions">
+            <button class="secondary-button" id="generateBtn" type="button">生成本期任务</button>
+            <button class="primary-button" data-jump="templates" type="button">登记周期任务</button>
+          </div>
+        </header>
+
+        <section class="summary-grid" aria-label="工作概览">
+          <article class="summary-card urgent">
+            <span>今日应办</span>
+            <strong id="todayCount">0</strong>
+            <small>到期或当天必须处理</small>
+          </article>
+          <article class="summary-card">
+            <span>本周任务</span>
+            <strong id="weekCount">0</strong>
+            <small>本周常规事项</small>
+          </article>
+          <article class="summary-card">
+            <span>本月任务</span>
+            <strong id="monthCount">0</strong>
+            <small>月末与月度报送</small>
+          </article>
+          <article class="summary-card">
+            <span>本季任务</span>
+            <strong id="quarterCount">0</strong>
+            <small>季度检查与归档</small>
+          </article>
+          <article class="summary-card warning">
+            <span>逾期未完成</span>
+            <strong id="overdueCount">0</strong>
+            <small>需要说明或延期</small>
+          </article>
+        </section>
+
+        <section class="dashboard-layout">
+          <div class="primary-column">
+            <section class="section-block">
+              <div class="section-title">
+                <h3>今日应办事项</h3>
+                <span id="todayHint">按重要和紧急程度排序</span>
+              </div>
+              <div class="task-list" id="todayTasks"></div>
+            </section>
+
+            <section class="section-block">
+              <div class="section-title">
+                <h3>逾期或延期提醒</h3>
+                <span>未完成事项会保留原因</span>
+              </div>
+              <div class="task-list compact" id="overdueTasks"></div>
+            </section>
+          </div>
+
+          <div class="secondary-column">
+            <section class="section-block">
+              <div class="section-title">
+                <h3>本周 / 本月 / 本季</h3>
+                <span>由周期台账自动生成</span>
+              </div>
+              <div class="period-tabs" role="tablist">
+                <button class="period-tab active" data-period="week" type="button">本周</button>
+                <button class="period-tab" data-period="month" type="button">本月</button>
+                <button class="period-tab" data-period="quarter" type="button">本季</button>
+              </div>
+              <div class="task-list compact" id="periodTasks"></div>
+            </section>
+
+            <section class="section-block">
+              <div class="section-title">
+                <h3>重要紧急四象限</h3>
+                <span>帮助判断先后顺序</span>
+              </div>
+              <div class="quadrant-grid" id="quadrants"></div>
+            </section>
+          </div>
+        </section>
+      </section>
+
+      <section class="view" id="templates">
+        <header class="page-header">
+          <div>
+            <p class="eyebrow">提前登记重复性常规工作</p>
+            <h2>周期任务台账</h2>
+          </div>
+          <div class="header-actions">
+            <button class="secondary-button" id="resetSeedBtn" type="button">恢复示例台账</button>
+          </div>
+        </header>
+
+        <section class="registry-layout">
+          <form class="form-panel" id="templateForm">
+            <h3>登记周期任务</h3>
+            <label>
+              <span>任务名称</span>
+              <div class="voice-input">
+                <input name="title" required maxlength="40" placeholder="例如：月末报表报送">
+                <button class="voice-button" data-voice-field="title" type="button" title="语音输入任务名称">语音</button>
+              </div>
+            </label>
+            <div class="form-row">
+              <label>
+                <span>周期类型</span>
+                <select name="cycle" id="cycleSelect">
+                  <option value="daily">每日任务</option>
+                  <option value="weekly">每周任务</option>
+                  <option value="monthly">每月任务</option>
+                  <option value="quarterly">每季任务</option>
+                </select>
+              </label>
+              <label>
+                <span>所属大类</span>
+                <select name="category">
+                  <option>账务核对</option>
+                  <option>凭证管理</option>
+                  <option>报表报送</option>
+                  <option>风险合规</option>
+                  <option>内部管理</option>
+                  <option>临时交办</option>
+                </select>
+              </label>
+            </div>
+            <div class="form-row">
+              <label>
+                <span>重要性</span>
+                <select name="important">
+                  <option value="true">重要</option>
+                  <option value="false">一般</option>
+                </select>
+              </label>
+              <label>
+                <span>紧急规则</span>
+                <select name="urgencyRule">
+                  <option value="due">到期当天紧急</option>
+                  <option value="advance">提前两天提醒</option>
+                  <option value="display">仅展示</option>
+                </select>
+              </label>
+            </div>
+            <div class="schedule-fields" id="scheduleFields"></div>
+            <label>
+              <span>备注</span>
+              <div class="voice-input stacked">
+                <textarea name="note" rows="3" placeholder="记录操作口径、资料位置、注意事项"></textarea>
+                <button class="voice-button" data-voice-field="note" type="button" title="语音输入备注">语音输入备注</button>
+              </div>
+            </label>
+            <button class="primary-button full" type="submit">保存到台账</button>
+          </form>
+
+          <section class="section-block registry-list-block">
+            <div class="section-title">
+              <h3>已登记的大类项</h3>
+              <span id="templateTotal">0 项</span>
+            </div>
+            <div class="cycle-filter" id="cycleFilters">
+              <button class="filter-pill active" data-cycle="all" type="button">全部</button>
+              <button class="filter-pill" data-cycle="daily" type="button">每日</button>
+              <button class="filter-pill" data-cycle="weekly" type="button">每周</button>
+              <button class="filter-pill" data-cycle="monthly" type="button">每月</button>
+              <button class="filter-pill" data-cycle="quarterly" type="button">每季</button>
+            </div>
+            <div class="template-list" id="templateList"></div>
+          </section>
+        </section>
+      </section>
+
+      <section class="view" id="archive">
+        <header class="page-header">
+          <div>
+            <p class="eyebrow">完成状态、备注和未完成原因</p>
+            <h2>工作留档记录</h2>
+          </div>
+          <div class="header-actions">
+            <button class="secondary-button" id="exportBtn" type="button">导出记录</button>
+          </div>
+        </header>
+
+        <section class="archive-tools">
+          <label>
+            <span>日期</span>
+            <input id="archiveDate" type="date">
+          </label>
+          <label>
+            <span>周期</span>
+            <select id="archiveCycle">
+              <option value="all">全部</option>
+              <option value="daily">每日</option>
+              <option value="weekly">每周</option>
+              <option value="monthly">每月</option>
+              <option value="quarterly">每季</option>
+            </select>
+          </label>
+          <label>
+            <span>类别</span>
+            <select id="archiveCategory">
+              <option value="all">全部</option>
+              <option>账务核对</option>
+              <option>凭证管理</option>
+              <option>报表报送</option>
+              <option>风险合规</option>
+              <option>内部管理</option>
+              <option>临时交办</option>
+            </select>
+          </label>
+          <label>
+            <span>关键词</span>
+            <input id="archiveSearch" type="search" placeholder="搜索任务或备注">
+          </label>
+        </section>
+
+        <section class="section-block">
+          <div class="section-title">
+            <h3>记录列表</h3>
+            <span id="archiveCount">0 条</span>
+          </div>
+          <div class="archive-list" id="archiveList"></div>
+        </section>
+      </section>
+    </main>
+  </div>
+
+  <template id="emptyTemplate">
+    <div class="empty-state">
+      <strong>暂无记录</strong>
+      <span>可以先登记周期任务，系统会按日期生成待办。</span>
+    </div>
+  </template>
+
+  <script src="./app.js"></script>
+</body>
+</html>
